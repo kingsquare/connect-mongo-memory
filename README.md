@@ -25,4 +25,4 @@ app.use(session({
 
 - All options of https://github.com/kcbanner/connect-mongo, plus
 - ```pruneInterval``` - default 600000 (10 min) - The interval to actively prune sessions from memory
-- ```pruneSessionIdleTime``` - default 3600000 (1 hour) -  
+- ```pruneSessionIdleTime``` - default 3600000 (1 hour) - How long may a session be idle before being pruned?
