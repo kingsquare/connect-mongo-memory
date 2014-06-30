@@ -3,9 +3,9 @@ connect-mongo-memory
 
 MongoDB session store for Connect. Uses in-memory caching of sessions stored in MongoDB
   
-To be used on a single-host app and have
-- Speed of in-memory sessions
-- Persistence of MongoDB stored ( https://github.com/kcbanner/connect-mongo )
+To be used on a __single-host app__ and have
+- Speed like in-memory sessions
+- Persistence like MongoDB stored sessions ( https://github.com/kcbanner/connect-mongo )
 
 ## Example use ##
 
