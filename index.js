@@ -1,3 +1,7 @@
+var defer = typeof setImmediate === 'function'
+		? setImmediate
+		: function(fn){ process.nextTick(fn.bind.apply(fn, arguments)) }
+
 module.exports = exports = function (session) {
 	var MongoStore = require('connect-mongo')(session);
 
@@ -43,13 +47,23 @@ module.exports = exports = function (session) {
 	 * @param {Function} callback
 	 * @api public
 	 */
-	MongoMemoryStore.prototype.get = function (sid, callback) {
-		if (this.sessions[sid]) {
-			this.sessions[sid].lastUse = Date.now();
-			callback(null, this.sessions[sid]);
-			return;
+	MongoMemoryStore.prototype.get = function (sid, fn) {
+		var sess = this.sessions[sid] ;
+		if (!sess) {
+			//try Mongo
+			return MongoStore.prototype.get.apply(this, arguments);
 		}
-		MongoStore.prototype.get.apply(this, arguments);
+
+		var expires = typeof sess.cookie.expires === 'string'
+				? new Date(sess.cookie.expires)
+				: sess.cookie.expires;
+		// destroy expired session
+		if (expires && expires <= Date.now()) {
+			return self.destroy(sid, fn);
+		}
+
+		this.sessions[sid].lastUse = Date.now();
+		defer(fn, null, sess);
 	};
 
 	/**
@@ -65,9 +79,11 @@ module.exports = exports = function (session) {
 		//cache locally
 		this.sessions[sid] = sess;
 		this.sessions[sid].lastUse = new Date();
-		fn();
 
-		//call-back immediatly
+		//call-back immediatly...
+		fn && defer(fn);
+
+		//... and update MongoDB later
 		MongoStore.prototype.set.apply(this, [sid, sess]);
 	};
 
