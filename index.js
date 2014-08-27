@@ -87,5 +87,19 @@ module.exports = exports = function (session) {
 		MongoStore.prototype.set.apply(this, [sid, sess]);
 	};
 
+	/**
+	 * Destroy the session associated with the given `sid`.
+	 * Also, make sure the session is removed from the local memory as well!
+	 *
+	 * @param {String} sid
+	 * @param {Function} callback
+	 * @api public
+	 */
+
+	MongoMemoryStore.prototype.destroy = function(sid, callback) {
+		delete this.sessions[sid];
+		return MongoStore.prototype.destroy.apply(this, arguments);
+	};
+
 	return MongoMemoryStore;
 };
